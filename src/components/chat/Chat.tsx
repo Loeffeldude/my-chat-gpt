@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@src/lib/hooks/redux";
 import { ChatCompletionResponseMessageRoleEnum } from "openai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChatInput, ChatInputProps } from "./ChatInput";
-import { ChatMessage, ChatMessageProps } from "./ChatMessage";
+import { ChatMessage } from "./ChatMessage";
 import {
   updateDraft,
   deleteMessage,
@@ -43,7 +43,7 @@ export function ChatView({ chat }: ChatViewProps) {
 
       setSendAsRole(role);
     },
-    [dispatch, chat?.id]
+    [chat, dispatch]
   );
   const handleChatSubmit = useCallback<NonNullable<ChatInputProps["onSubmit"]>>(
     ({ draft, role }) => {
@@ -52,13 +52,13 @@ export function ChatView({ chat }: ChatViewProps) {
       dispatch(pushHistory({ content: draft, role: role }));
       dispatch(updateDraft({ id: chat.id, draft: "" }));
     },
-    [dispatch, chat?.id, sendAsRole]
+    [chat, dispatch]
   );
   const handleChatAbort = useCallback(() => {
     if (!chat) return;
 
     dispatch(abortCompletion({ id: chat.id }));
-  }, [dispatch, chat?.id]);
+  }, [chat, dispatch]);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
@@ -127,7 +127,7 @@ export function ChatView({ chat }: ChatViewProps) {
         />
       );
     });
-  }, [chat.history]);
+  }, [chat.history, chat.id, dispatch, showPreamble]);
 
   return (
     <div className="h-full overflow-y-scroll" ref={scrollRef}>

@@ -32,8 +32,6 @@ module.exports = {
   },
   plugins: ["react", "@typescript-eslint", "import", "react-hooks"],
   rules: {
-    "no-console": "warn",
-
     "no-constant-condition": [
       "error",
       {

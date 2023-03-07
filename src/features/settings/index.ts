@@ -22,9 +22,11 @@ export const settingSlice = createSlice({
     setApiKey: (state, payload: PayloadAction<{ apiKey: string }>) => {
       state.apiKey = payload.payload.apiKey;
 
-      window.electronAPI.setApiKey(payload.payload.apiKey).catch((e: any) => {
-        console.error(e);
-      });
+      window.electronAPI
+        .setApiKey(payload.payload.apiKey)
+        .catch((e: unknown) => {
+          console.error(e);
+        });
     },
     setShiftKey: (state, payload: PayloadAction<{ shiftSend: boolean }>) => {
       state.shiftSend = payload.payload.shiftSend;

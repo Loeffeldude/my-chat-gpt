@@ -23,7 +23,7 @@ const stateToLocalState = (state: RootState): LocalStorageState => {
   };
 };
 
-const storageMiddleware: Middleware<{}> = (store) => (next) => (action) => {
+const storageMiddleware: Middleware = (store) => (next) => (action) => {
   const result: RootState = store.getState();
 
   if (action.type.startsWith("settings/")) {
@@ -67,7 +67,8 @@ const getInitalState = async (): Promise<RootState | undefined> => {
   }
   return undefined;
 };
-
+// We use any to avoid recursive type errors
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const initalState: any = await getInitalState();
 
 export const STORE = configureStore({

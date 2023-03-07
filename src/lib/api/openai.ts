@@ -1,4 +1,3 @@
-import { AxiosRequestConfig } from "axios";
 import {
   Configuration,
   CreateChatCompletionRequest,
@@ -32,17 +31,20 @@ export type ChatCompletionChunkChoice = {
 
 export type PartialChatCompletionChunk = Partial<ChatCompletionResponseMessage>;
 
+type ParamCreator = ReturnType<typeof OpenAIApiAxiosParamCreator>;
+type AxiosParams = Parameters<ParamCreator["createChatCompletion"]>[1];
+
 export async function* streamChatCompletion(
   createChatCompletionRequest: CreateChatCompletionRequest,
   config: Configuration,
-  options?: AxiosRequestConfig<unknown> | undefined
+  options?: AxiosParams
 ) {
   // We try to reuse as much of the generated code as possible
   const paramCreator = OpenAIApiAxiosParamCreator(config);
 
   const axiosParams = await paramCreator.createChatCompletion(
     createChatCompletionRequest,
-    options as any
+    options
   );
 
   // We need to do this because the generated code doesn't support streaming
