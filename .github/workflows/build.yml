@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  deployments: write
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
