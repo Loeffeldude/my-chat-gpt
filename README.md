@@ -80,6 +80,14 @@ npm run dev
 
 ### Build
 
+Build the electron app:
+
 ```bash
-npm run build
+npm run build:electron
+```
+
+Just build React app:
+
+```bash
+npm run build:client
 ```
