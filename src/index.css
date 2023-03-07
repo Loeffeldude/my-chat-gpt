@@ -1,0 +1,43 @@
+/* Tailwind */
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom */
+@import "./styles/grid.css";
+@import "./styles/markdown.css";
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  @apply bg-mirage-800 text-white;
+}
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+ol {
+  list-style: decimal;
+}
+ul {
+  list-style: disc;
+}
+
+*::-webkit-scrollbar {
+  width: 8px; /* width of the entire scrollbar */
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  @apply rounded-md bg-mirage-700;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply rounded-md bg-mirage-600;
+}
+* {
+  @apply focus:outline-green-700;
+}

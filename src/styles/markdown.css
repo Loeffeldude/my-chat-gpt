@@ -1,0 +1,6 @@
+.wmde-markdown {
+  background-color: transparent !important;
+}
+.wmde-markdown pre {
+  @apply !bg-mirage-900;
+}

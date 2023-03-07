@@ -1,0 +1,6 @@
+.eslintrc.cjs
+tailwind.config.cjs
+postcss.config.cjs
+vite.config.ts
+prettier.config.js
+dist/
