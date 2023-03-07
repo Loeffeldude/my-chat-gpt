@@ -1,8 +1,13 @@
 {
-  "name": "merchant",
+  "name": "my-chat-gpt",
   "private": true,
   "version": "0.0.0",
   "main": "dist-electron/main/index.js",
+  "author": {
+    "name": "Nico Krätschmer",
+    "email": "kraetschmerni@gmail.com"
+  },
+  "description": "An opensource ChatGPT client for Windows, Mac and Linux",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",

@@ -3,4 +3,5 @@ export type SettingsState = {
   preamble: string;
   shiftSend: boolean;
   apiKey: string | null;
+  showPreamble: boolean;
 };

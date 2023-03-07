@@ -2,7 +2,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: "YourAppID",
+  appId: "com.loeffeldude.mychatgpt",
+  productName: "MyChatGPT",
   asar: true,
   directories: {
     output: "release/${version}",

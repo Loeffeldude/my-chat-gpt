@@ -7,6 +7,7 @@ const initialState: SettingsState = {
     "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.",
   maxTokens: 5,
   shiftSend: true,
+  showPreamble: false,
   apiKey: API_KEY,
 };
 
@@ -28,9 +29,13 @@ export const settingSlice = createSlice({
     setShiftKey: (state, payload: PayloadAction<{ shiftSend: boolean }>) => {
       state.shiftSend = payload.payload.shiftSend;
     },
+    setShowPreamble: (state, payload: PayloadAction<{ show: boolean }>) => {
+      state.showPreamble = payload.payload.show;
+    },
   },
 });
 // Actions
-export const { setPreamble, setApiKey, setShiftKey } = settingSlice.actions;
+export const { setPreamble, setApiKey, setShiftKey, setShowPreamble } =
+  settingSlice.actions;
 
 export const dialogueReducer = settingSlice.reducer;

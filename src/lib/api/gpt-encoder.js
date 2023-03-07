@@ -1,6 +1,6 @@
 // This is a modified version of the encoder from
 // gpt-3-encoder package. The original package is a node package and makes use of fs
-// We still import all the files from the package but we use the raw loader to
+// We still import all the files from the package but we use the url loader to
 // import the files as strings. We then use the string to create the encoder
 
 import encoderUrl from "gpt-3-encoder/encoder.json?url";

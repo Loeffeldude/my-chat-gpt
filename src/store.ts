@@ -4,11 +4,12 @@ import { API_KEY } from "./lib/api/openai";
 import { chatsSlice } from "./features/chat";
 import { Chat, chatSchema } from "./features/chat/types";
 import { toastSlice } from "./features/toasts";
+import { SettingsState } from "./features/settings/types";
 
 const LS_STATE_KEY = "state";
 
 type LocalStorageState = {
-  settings: Omit<RootState["settings"], "apiKey">;
+  settings: Omit<SettingsState, "apiKey">;
 };
 
 const stateToLocalState = (state: RootState): LocalStorageState => {
@@ -17,6 +18,7 @@ const stateToLocalState = (state: RootState): LocalStorageState => {
       maxTokens: state.settings.maxTokens,
       preamble: state.settings.preamble,
       shiftSend: state.settings.shiftSend,
+      showPreamble: state.settings.showPreamble,
     },
   };
 };
@@ -31,15 +33,14 @@ const storageMiddleware: Middleware<{}> = (store) => (next) => (action) => {
   return next(action);
 };
 
-const getInitalState = async () => {
+const getInitalState = async (): Promise<RootState | undefined> => {
   try {
     const localStateJson = localStorage.getItem(LS_STATE_KEY);
     if (localStateJson) {
-      const localState = JSON.parse(localStateJson);
+      const localState: LocalStorageState = JSON.parse(localStateJson);
       const chats: Chat[] = await window.electronAPI.getChats();
       const chatRecord = chats.reduce<Record<string, Chat>>((acc, chat) => {
         const parse = chatSchema.safeParse(chat);
-        console.log(chat);
         if (parse.success) {
           acc[chat.id] = parse.data;
         } else {
@@ -49,13 +50,17 @@ const getInitalState = async () => {
         return acc;
       }, {});
 
-      return {
+      const result: RootState = {
         chats: {
           chats: chatRecord,
           activeId: chats.length > 0 ? chats[0].id : null,
         },
+        toasts: {
+          toasts: {},
+        },
         settings: { ...localState.settings, apiKey: API_KEY },
       };
+      return result;
     }
   } catch (e) {
     console.error("Error loading state from local storage:", e);
@@ -63,7 +68,7 @@ const getInitalState = async () => {
   return undefined;
 };
 
-const initalState = await getInitalState();
+const initalState: any = await getInitalState();
 
 export const STORE = configureStore({
   reducer: {

@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { FiChevronLeft } from "react-icons/fi";
 import { IconButton } from "../components/IconButton";
 import { Button } from "@src/components/Button";
-import { setApiKey, setPreamble, setShiftKey } from "@src/features/settings";
+import {
+  setApiKey,
+  setPreamble,
+  setShiftKey,
+  setShowPreamble,
+} from "@src/features/settings";
 import { createToast } from "@src/features/toasts/thunks";
 type SettingItemProps = {
   label?: string;
@@ -52,6 +57,9 @@ export function SettingsPage() {
   const preamble = useAppSelector((state) => state.settings.preamble);
   const apiKey = useAppSelector((state) => state.settings.apiKey);
   const shiftSend = useAppSelector((state) => state.settings.shiftSend);
+  const showPreambleMessage = useAppSelector(
+    (state) => state.settings.showPreamble
+  );
 
   const navigate = useNavigate();
 
@@ -62,6 +70,7 @@ export function SettingsPage() {
     const preambleForm = formData.get("preamble");
     const apiKeyForm = formData.get("apiKey");
     const shiftSendForm = formData.get("shiftSend");
+    const showPreambleMessageForm = formData.get("preamble-message");
 
     if (preambleForm) {
       dispatch(setPreamble({ preamble: preambleForm.toString() }));
@@ -73,6 +82,12 @@ export function SettingsPage() {
     dispatch(
       setShiftKey({
         shiftSend: shiftSendForm?.toString() === "on" ? true : false,
+      })
+    );
+
+    dispatch(
+      setShowPreamble({
+        show: showPreambleMessageForm?.toString() === "on" ? true : false,
       })
     );
 
@@ -139,6 +154,18 @@ export function SettingsPage() {
               type="checkbox"
               name="shiftSend"
               id="shiftSend"
+            />
+          </div>
+        </SettingItem>
+        <SettingItem>
+          <div className="flex flex-row items-center">
+            <label htmlFor="preamble-message">Show the preamble message:</label>
+            <input
+              defaultChecked={showPreambleMessage}
+              className="ml-2 rounded bg-mirage-700 transition-all checked:accent-green-700"
+              type="checkbox"
+              name="preamble-message"
+              id="preamble-message"
             />
           </div>
         </SettingItem>

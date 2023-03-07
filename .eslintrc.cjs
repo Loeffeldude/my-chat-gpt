@@ -11,7 +11,7 @@ module.exports = {
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
-    "react-hooks",
+    "plugin:react-hooks/recommended",
   ],
   settings: {
     "import/parsers": {
@@ -30,7 +30,7 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "import"],
+  plugins: ["react", "@typescript-eslint", "import", "react-hooks"],
   rules: {
     "no-console": "warn",
 

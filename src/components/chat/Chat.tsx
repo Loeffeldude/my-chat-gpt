@@ -34,6 +34,7 @@ export function ChatView({ chat }: ChatViewProps) {
   const botTypingMessage = useAppSelector(
     (state) => state.chats.chats[chat.id].botTypingMessage
   );
+  const showPreamble = useAppSelector((state) => state.settings.showPreamble);
 
   const handleChatInput = useCallback<NonNullable<ChatInputProps["onChange"]>>(
     ({ draft, role }) => {
@@ -99,7 +100,7 @@ export function ChatView({ chat }: ChatViewProps) {
       dispatch(editMessage({ content, chatId: chat.id, messageId: id }));
     };
     return Object.values(chat.history).map((message, i) => {
-      if (message.isPreamble) {
+      if (message.isPreamble && !showPreamble) {
         return null;
       }
       return (
