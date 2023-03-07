@@ -23,4 +23,4 @@ jobs:
           node-version: 18
 
       - name: Build/release Electron app
-        run: export GITHUB_TOKEN=${{ secrets.github_token }} && npm run release
+        run: export GITHUB_TOKEN=${{ secrets.github_token }} && npm ci && npm run release
