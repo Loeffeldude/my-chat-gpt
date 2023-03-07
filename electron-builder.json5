@@ -10,10 +10,12 @@
   },
   files: ["dist-electron", "dist"],
   mac: {
+    publish: ["github"],
     artifactName: "${productName}_${version}.${ext}",
     target: ["dmg"],
   },
   win: {
+    publish: ["github"],
     target: [
       {
         target: "nsis",
@@ -24,6 +26,7 @@
   },
   publish: ["github"],
   nsis: {
+    publish: ["github"],
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,
