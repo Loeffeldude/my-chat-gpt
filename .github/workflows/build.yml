@@ -5,8 +5,7 @@ on:
     tags:
       - "v*"
 
-permissions:
-  deployments: write
+permissions: write-all
 
 jobs:
   release:
