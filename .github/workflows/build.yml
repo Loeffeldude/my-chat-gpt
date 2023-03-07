@@ -28,4 +28,7 @@ jobs:
           node-version: 18
 
       - name: Build/release Electron app
-        run: npm ci && npm run release
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          release: true
