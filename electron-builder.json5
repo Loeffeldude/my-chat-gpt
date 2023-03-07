@@ -22,11 +22,7 @@
     ],
     artifactName: "${productName}_${version}.${ext}",
   },
-  build: {
-    win: {
-      publish: ["github"],
-    },
-  },
+  publish: ["github"],
   nsis: {
     oneClick: false,
     perMachine: false,
