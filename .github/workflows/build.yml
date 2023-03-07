@@ -7,6 +7,9 @@ on:
 
 permissions: write-all
 
+env:
+  GH_TOKEN: ${{ secrets.github_token }}
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -25,4 +28,4 @@ jobs:
           node-version: 18
 
       - name: Build/release Electron app
-        run: export GITHUB_TOKEN=${{ secrets.github_token }} && npm ci && npm run release
+        run: npm ci && npm run release
