@@ -10,7 +10,9 @@
   "description": "An opensource ChatGPT client for Windows, Mac and Linux",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build:client": "tsc && vite build",
+    "build:electron": "npm run build:clien && electron-builder",
+    "build": "npm run build:client",
     "preview": "vite preview",
     "prepare": "husky install"
   },
