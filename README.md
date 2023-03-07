@@ -8,7 +8,7 @@ The client works almost just like the original ChatGPT websites but it includes 
 
 ## Installation
 
-Go to the [realease page]() and download and install the latest release for your platform.
+Go to the [realease page](https://github.com/Loeffeldude/my-chat-gpt/releases) and download and install the latest release for your platform.
 
 ## Setup
 
