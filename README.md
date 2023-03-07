@@ -4,6 +4,8 @@ This is a OSS standalone ChatGPT client. It is based on [ChatGPT](https://openai
 
 The client works almost just like the original ChatGPT websites but it includes some additional features.
 
+<img src="./docs/screenshot" alt="Screenshot of the App">
+
 ## Installation
 
 Go to the [realease page]() and download and install the latest release for your platform.
