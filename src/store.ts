@@ -5,6 +5,7 @@ import { chatsSlice } from "./features/chat";
 import { Chat, chatSchema } from "./features/chat/types";
 import { toastSlice } from "./features/toasts";
 import { SettingsState } from "./features/settings/types";
+import { CHATGPT_MAX_TOKENS } from "./lib/constants/openai";
 
 const LS_STATE_KEY = "state";
 
@@ -36,32 +37,44 @@ const storageMiddleware: Middleware = (store) => (next) => (action) => {
 const getInitalState = async (): Promise<RootState | undefined> => {
   try {
     const localStateJson = localStorage.getItem(LS_STATE_KEY);
+
+    let localState: LocalStorageState = {
+      settings: {
+        maxTokens: CHATGPT_MAX_TOKENS,
+        preamble: "",
+        shiftSend: false,
+        showPreamble: false,
+      },
+    };
+
     if (localStateJson) {
-      const localState: LocalStorageState = JSON.parse(localStateJson);
-      const chats: Chat[] = await window.electronAPI.getChats();
-      const chatRecord = chats.reduce<Record<string, Chat>>((acc, chat) => {
-        const parse = chatSchema.safeParse(chat);
-        if (parse.success) {
-          acc[chat.id] = parse.data;
-        } else {
-          console.error("Error parsing chat:", parse.error);
-        }
-
-        return acc;
-      }, {});
-
-      const result: RootState = {
-        chats: {
-          chats: chatRecord,
-          activeId: chats.length > 0 ? chats[0].id : null,
-        },
-        toasts: {
-          toasts: {},
-        },
-        settings: { ...localState.settings, apiKey: API_KEY },
-      };
-      return result;
+      localState = JSON.parse(localStateJson);
     }
+
+    const chats: Chat[] = await window.electronAPI.getChats();
+    const chatRecord = chats.reduce<Record<string, Chat>>((acc, chat) => {
+      const parse = chatSchema.safeParse(chat);
+      if (parse.success) {
+        acc[chat.id] = parse.data;
+      } else {
+        console.error("Error parsing chat:", parse.error);
+      }
+
+      return acc;
+    }, {});
+
+    const result: RootState = {
+      chats: {
+        chats: chatRecord,
+        activeId: chats.length > 0 ? chats[0].id : null,
+      },
+      toasts: {
+        toasts: {},
+      },
+      settings: { ...localState.settings, apiKey: API_KEY },
+    };
+
+    return result;
   } catch (e) {
     console.error("Error loading state from local storage:", e);
   }

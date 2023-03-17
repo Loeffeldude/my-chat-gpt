@@ -79,25 +79,23 @@ app.on("activate", () => {
   }
 });
 
-async function saveChat(
-  event: Electron.IpcMainInvokeEvent,
-  id: string,
-  chat: Chat
-) {
-  const dir = app.getPath("userData");
-  const path = join(dir, "chats", `${id}.json`);
-  // Create the directory if it doesn't exist
-  await fs.mkdir(join(dir, "chats"), { recursive: true });
-  await fs.writeFile(path, JSON.stringify(chat));
-}
+ipcMain.handle(
+  "chat:save",
+  async (event: Electron.IpcMainInvokeEvent, id: string, chat: Chat) => {
+    const dir = app.getPath("userData");
+    const path = join(dir, "chats", `${id}.json`);
 
-async function getChats() {
+    // Create the directory if it doesn't exist
+
+    await fs.mkdir(join(dir, "chats"), { recursive: true });
+    await fs.writeFile(path, JSON.stringify(chat));
+  }
+);
+
+ipcMain.handle("chat:getAll", async () => {
   const appDir = app.getPath("userData");
   const path = join(appDir, "chats");
-  // Create the directory if it doesn't exist
   await fs.mkdir(path, { recursive: true });
-
-  // loop through the files in the directory
   const chatDir = await fs.readdir(path);
 
   const chats: Promise<Chat | null>[] = chatDir.map(async (file) => {
@@ -116,10 +114,7 @@ async function getChats() {
   return (await Promise.allSettled(chats))
     .map((result) => (result.status === "fulfilled" ? result.value : null))
     .filter((chat) => chat !== null);
-}
-
-ipcMain.handle("chat:save", saveChat);
-ipcMain.handle("chat:getAll", getChats);
+});
 
 ipcMain.handle("chat:delete", async (_, id: string) => {
   const dir = app.getPath("userData");
@@ -140,11 +135,20 @@ ipcMain.handle("apikey:get", () => {
 
   if (!encrypedKey) return null;
 
+  if (!safeStorage.isEncryptionAvailable()) {
+    return encrypedKey;
+  }
+
   return safeStorage.decryptString(Buffer.from(encrypedKey, "utf-8"));
 });
 
 ipcMain.handle("apikey:set", (_, key: string) => {
-  const encrypedKey = safeStorage.encryptString(key);
+  const encryptionAvailable = safeStorage.isEncryptionAvailable();
+
+  const encrypedKey = encryptionAvailable
+    ? safeStorage.encryptString(key)
+    : key;
+
   store.set("apiKey", encrypedKey);
 });
 

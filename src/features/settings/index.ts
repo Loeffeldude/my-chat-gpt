@@ -13,7 +13,7 @@ const initialState: SettingsState = {
 
 // Reducer
 export const settingSlice = createSlice({
-  name: "dialogue",
+  name: "settings",
   initialState,
   reducers: {
     setPreamble: (state, payload: PayloadAction<{ preamble: string }>) => {

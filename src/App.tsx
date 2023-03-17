@@ -49,6 +49,7 @@ function App() {
   const state = useAppSelector((state) => state);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (!state.chats.activeId) {
       if (Object.keys(state.chats.chats).length === 0) {
@@ -58,8 +59,15 @@ function App() {
       navigate(`/${Object.keys(state.chats.chats)[0]}`);
       return;
     }
+
     navigate(`/${state.chats.activeId}`);
-  }, [state.chats.activeId]);
+  }, [
+    dispatch,
+    navigate,
+    state.chats.activeId,
+    state.chats.chats,
+    state.settings.preamble,
+  ]);
 
   return (
     <div className="app">

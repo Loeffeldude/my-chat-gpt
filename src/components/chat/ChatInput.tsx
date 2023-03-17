@@ -26,7 +26,6 @@ export function ChatInput({
   disabled,
 }: ChatInputProps) {
   const shiftSend = useAppSelector((state) => state.settings.shiftSend);
-
   const roleOptions = ["user", "system", "assistant"];
 
   const handleDraftChange = useCallback(
@@ -55,7 +54,7 @@ export function ChatInput({
 
       onSubmit && onSubmit({ draft, role: sendAsRole });
     },
-    [draft, sendAsRole, onSubmit]
+    [disabled, draft, onSubmit, sendAsRole]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -105,10 +104,19 @@ export function ChatInput({
         ></textarea>
         <div className="">
           <IconButton
+            disabled={disabled}
             aria-label="Send Message"
             className="ml-2 !bg-green-700 hover:!bg-green-600 active:!bg-green-800"
           >
-            <FiSend size={20} />
+            {disabled ? (
+              <div className="flex flex-row items-center">
+                <div className="anim h-1 w-1 rounded-full bg-green-500"></div>
+                <div className="ml-1 h-1 w-1 rounded-full bg-green-500"></div>
+                <div className="ml-1 h-1 w-1 rounded-full bg-green-500"></div>
+              </div>
+            ) : (
+              <FiSend size={20} />
+            )}
           </IconButton>
         </div>
       </div>

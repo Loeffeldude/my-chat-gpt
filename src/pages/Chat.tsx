@@ -7,13 +7,14 @@ export function ChatPage() {
   const dispatch = useAppDispatch();
   const params = useParams();
   const chatId = params.chatId;
+  const chat = useAppSelector((state) =>
+    chatId ? state.chats.chats[chatId] : null
+  );
 
   if (!chatId) {
     dispatch(switchChat({ id: null }));
     return <Navigate to={"/"} />;
   }
-
-  const chat = useAppSelector((state) => state.chats.chats[chatId]);
 
   if (!chat) {
     dispatch(switchChat({ id: null }));
