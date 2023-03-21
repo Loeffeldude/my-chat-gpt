@@ -1,7 +1,6 @@
-import { useAppDispatch } from "@src/lib/hooks/redux";
 import MDEditor from "@uiw/react-md-editor";
 import { ChatCompletionResponseMessageRoleEnum } from "openai";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { IconButton } from "../IconButton";
 import {
   FiCopy,
@@ -13,8 +12,6 @@ import {
 } from "react-icons/fi";
 import { capitilize } from "@src/lib/util";
 import classNames from "classnames";
-import rehypeSanitize from "rehype-sanitize";
-import { Button } from "../Button";
 
 export type ChatMessageProps = {
   content: string;
@@ -119,17 +116,14 @@ export function ChatMessage({
       <div className={nameClasses}>{nameDisplay}:</div>
       {isEditing ? (
         <textarea
-          className="h-40 w-full bg-mirage-700"
+          className="h-40 w-full rounded-md bg-mirage-700"
           value={editedContent}
           onChange={(e) => {
             setEditedContent(e.target.value);
           }}
         />
       ) : (
-        <MDEditor.Markdown
-          source={content}
-          rehypePlugins={[[rehypeSanitize]]}
-        />
+        <MDEditor.Markdown source={content} />
       )}
     </div>
   );

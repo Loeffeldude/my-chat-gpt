@@ -9,8 +9,9 @@ import {
 import { encode } from "./gpt-encoder";
 import { CHATGPT_MAX_TOKENS } from "../constants/openai";
 import { ChatMessage, SYSTEM } from "@src/features/chat/types";
+import { getStorage } from "../storage";
 
-export const API_KEY = await window.electronAPI.getApiKey();
+export const API_KEY = await getStorage().getApiKey();
 
 export type ChatCompletionChunk = {
   id: string;

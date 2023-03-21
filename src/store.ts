@@ -6,6 +6,7 @@ import { Chat, chatSchema } from "./features/chat/types";
 import { toastSlice } from "./features/toasts";
 import { SettingsState } from "./features/settings/types";
 import { CHATGPT_MAX_TOKENS } from "./lib/constants/openai";
+import { getStorage } from "./lib/storage";
 
 const LS_STATE_KEY = "state";
 
@@ -51,7 +52,7 @@ const getInitalState = async (): Promise<RootState | undefined> => {
       localState = JSON.parse(localStateJson);
     }
 
-    const chats: Chat[] = await window.electronAPI.getChats();
+    const chats: Chat[] = await getStorage().getChats();
     const chatRecord = chats.reduce<Record<string, Chat>>((acc, chat) => {
       const parse = chatSchema.safeParse(chat);
       if (parse.success) {

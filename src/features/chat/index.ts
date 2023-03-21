@@ -1,15 +1,5 @@
-import {
-  AnyAction,
-  PayloadAction,
-  ThunkAction,
-  createAsyncThunk,
-  createSlice,
-} from "@reduxjs/toolkit";
-import { RootState } from "@src/store";
-import {
-  ChatCompletionRequestMessage,
-  ChatCompletionRequestMessageRoleEnum,
-} from "openai";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { ChatCompletionRequestMessage } from "openai";
 import { v4 as uuid } from "uuid";
 import {
   PartialChatCompletionChunk,
@@ -18,24 +8,19 @@ import {
   streamChatCompletion,
   trunctateChat,
 } from "@src/lib/api/openai";
-import { z } from "zod";
-import {
-  ASSISTANT,
-  Chat,
-  ChatState,
-  NEW_CHAT_DEFAULT,
-  SYSTEM,
-  USER,
-} from "./types";
+import { Chat, ChatState, NEW_CHAT_DEFAULT, SYSTEM } from "./types";
 import { fetchSummary, streamCompletion } from "./thunks";
+import { getStorage } from "@src/lib/storage";
 
 export const saveChatFile = (chat: Chat) => {
-  window.electronAPI
-    .saveChat(chat.id, JSON.parse(JSON.stringify(chat)))
+  getStorage()
+    .storeChat(chat)
     .catch((e: any) => console.error(e));
 };
 export const deleteChatFile = (id: string) => {
-  window.electronAPI.deleteChat(id).catch((e: any) => console.error(e));
+  getStorage()
+    .deleteChat(id)
+    .catch((e: any) => console.error(e));
 };
 const initialState: ChatState = {
   activeId: null,

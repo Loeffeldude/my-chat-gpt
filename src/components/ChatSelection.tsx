@@ -8,8 +8,9 @@ import {
 import { useAppDispatch, useAppSelector } from "@src/lib/hooks/redux";
 import classNames from "classnames";
 import { IconButton } from "./IconButton";
-import { FiCheck, FiDelete, FiEdit, FiTrash } from "react-icons/fi";
-import { useEffect, useRef, useState } from "react";
+import { FiCheck, FiEdit, FiTrash } from "react-icons/fi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { localConfirm } from "@src/lib/util";
 
 type ChatSelectionButtonProps = {
   id: string;
@@ -42,16 +43,6 @@ export function ChatSelectionButton({
     " p-2 rounded-lg my-1 transition-colors relative"
   );
 
-  useEffect(() => {
-    setEditedSummary(summary);
-  }, [summary]);
-
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-    }
-  }, [isEditing]);
-
   const handleClick = () => {
     onClick && onClick(id);
   };
@@ -64,10 +55,26 @@ export function ChatSelectionButton({
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     setIsEditing(false);
     onEdit && onEdit(id, editedSummary);
-  };
+  }, [editedSummary, id, onEdit]);
+
+  useEffect(() => {
+    setEditedSummary(summary);
+  }, [summary]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+
+      inputRef.current?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          handleSave();
+        }
+      });
+    }
+  }, [handleSave, isEditing]);
 
   //TODO: refactor this to be more readable
   return (
@@ -76,7 +83,7 @@ export function ChatSelectionButton({
         isEditing ? (
           <input
             ref={inputRef}
-            className="block w-full bg-mirage-700"
+            className="block w-full rounded-md bg-mirage-700"
             value={editedSummary}
             onChange={(e) => {
               setEditedSummary(e.target.value);
@@ -131,9 +138,8 @@ export function ChatSelection() {
     dispatch(deleteChat({ id }));
   };
   const handleClearChats = async () => {
-    (await window.electronAPI.confirm(
-      "Are you sure you want to delete all chats?"
-    )) && dispatch(clearChats());
+    (await localConfirm("Are you sure you want to delete all chats?")) &&
+      dispatch(clearChats());
   };
 
   return (

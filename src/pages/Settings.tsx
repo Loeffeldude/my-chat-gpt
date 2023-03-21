@@ -118,7 +118,7 @@ export function SettingsPage() {
       <form onSubmit={handleSubmit}>
         <SettingItem label="OpenAI API Key" labelFor="apiKey">
           <input
-            className="bg-mirage-700 p-1"
+            className="rounded-md bg-mirage-700 p-1"
             type="password"
             placeholder="sk-..."
             name="apiKey"
@@ -138,7 +138,7 @@ export function SettingsPage() {
           }
         >
           <textarea
-            className="bg-mirage-700 p-1"
+            className="rounded-md bg-mirage-700 p-1"
             name="preamble"
             id="preamble"
             rows={10}
@@ -150,7 +150,7 @@ export function SettingsPage() {
             <label htmlFor="shiftSend">Press Shift + Enter to send:</label>
             <input
               defaultChecked={shiftSend}
-              className="ml-2 rounded bg-mirage-700 transition-all checked:accent-green-700"
+              className="ml-2 rounded-md bg-mirage-700 transition-all checked:accent-green-700"
               type="checkbox"
               name="shiftSend"
               id="shiftSend"

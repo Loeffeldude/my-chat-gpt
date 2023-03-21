@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { API_KEY } from "@src/lib/api/openai";
 import { SettingsState } from "./types";
+import { getStorage } from "@src/lib/storage";
 
 const initialState: SettingsState = {
   preamble:
@@ -22,7 +23,7 @@ export const settingSlice = createSlice({
     setApiKey: (state, payload: PayloadAction<{ apiKey: string }>) => {
       state.apiKey = payload.payload.apiKey;
 
-      window.electronAPI
+      getStorage()
         .setApiKey(payload.payload.apiKey)
         .catch((e: unknown) => {
           console.error(e);
