@@ -6,6 +6,10 @@ The client works almost just like the original ChatGPT websites but it includes 
 
 <img src="./docs/images/gif.gif" alt="Screenshot of the App">
 
+## Hosted Version
+
+You can use the hosted version of this client [here](https://my-chat-gpt-lake.vercel.app/).
+
 ## Installation
 
 Go to the [realease page](https://github.com/Loeffeldude/my-chat-gpt/releases) and download and install the latest release for your platform.
@@ -19,8 +23,6 @@ Go to the [realease page](https://github.com/Loeffeldude/my-chat-gpt/releases) a
 3. Start Chatting!
 
 ---
-
-<br>
 
 ## Why?
 
