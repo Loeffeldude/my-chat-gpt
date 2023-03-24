@@ -6,11 +6,13 @@ import { IconButton } from "../components/IconButton";
 import { Button } from "@src/components/Button";
 import {
   setApiKey,
+  setModel,
   setPreamble,
   setShiftKey,
   setShowPreamble,
 } from "@src/features/settings";
 import { createToast } from "@src/features/toasts/thunks";
+import { CHATGPT_MODELS, ChatGPTModel } from "@src/lib/constants/openai";
 type SettingItemProps = {
   label?: string;
   labelFor?: string;
@@ -60,6 +62,7 @@ export function SettingsPage() {
   const showPreambleMessage = useAppSelector(
     (state) => state.settings.showPreamble
   );
+  const model = useAppSelector((state) => state.settings.model);
 
   const navigate = useNavigate();
 
@@ -88,6 +91,14 @@ export function SettingsPage() {
     dispatch(
       setShowPreamble({
         show: showPreambleMessageForm?.toString() === "on" ? true : false,
+      })
+    );
+
+    dispatch(
+      setModel({
+        model:
+          (formData.get("model")?.toString() as ChatGPTModel) ??
+          Object.values(CHATGPT_MODELS)[0],
       })
     );
 
@@ -126,6 +137,22 @@ export function SettingsPage() {
             defaultValue={apiKey ?? ""}
           />
         </SettingItem>
+        <SettingItem label="ChatModel" labelFor="model">
+          <select
+            className="rounded-md bg-mirage-700 p-1"
+            name="model"
+            id="model"
+            defaultValue={model}
+          >
+            {Object.entries(CHATGPT_MODELS).map(([key, value]) => {
+              return (
+                <option key={key} value={key}>
+                  {value.label}
+                </option>
+              );
+            })}
+          </select>
+        </SettingItem>
         <SettingItem
           label="Chat Preamble"
           labelFor="preamble"
@@ -145,6 +172,7 @@ export function SettingsPage() {
             defaultValue={preamble}
           ></textarea>
         </SettingItem>
+
         <SettingItem>
           <div className="flex flex-row items-center">
             <label htmlFor="shiftSend">Press Shift + Enter to send:</label>

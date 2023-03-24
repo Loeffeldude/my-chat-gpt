@@ -1,13 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ChatCompletionRequestMessage } from "openai";
 import { v4 as uuid } from "uuid";
-import {
-  PartialChatCompletionChunk,
-  chatMessageToChatCompletionRequestMessage,
-  prepareHistory,
-  streamChatCompletion,
-  trunctateChat,
-} from "@src/lib/api/openai";
+import { PartialChatCompletionChunk } from "@src/lib/api/openai";
 import { Chat, ChatState, NEW_CHAT_DEFAULT, SYSTEM } from "./types";
 import { fetchSummary, streamCompletion } from "./thunks";
 import { getStorage } from "@src/lib/storage";

@@ -46,7 +46,10 @@ class LocalStorage extends Storage {
 
 class ElectronStorage extends Storage {
   storeChat(chat: Chat): Promise<void> {
-    return window.electronAPI.saveChat(chat.id, chat);
+    return window.electronAPI.saveChat(
+      chat.id,
+      JSON.parse(JSON.stringify(chat))
+    );
   }
   getChats(): Promise<Chat[]> {
     return window.electronAPI.getChats();
