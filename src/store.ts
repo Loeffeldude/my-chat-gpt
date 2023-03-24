@@ -1,11 +1,10 @@
 import { Middleware, configureStore } from "@reduxjs/toolkit";
-import { settingSlice } from "./features/settings";
+import { INITIAL_SETTINGS_STATE, settingSlice } from "./features/settings";
 import { API_KEY } from "./lib/api/openai";
 import { chatsSlice } from "./features/chat";
 import { Chat, chatSchema } from "./features/chat/types";
 import { toastSlice } from "./features/toasts";
 import { SettingsState } from "./features/settings/types";
-import { CHATGPT_MAX_TOKENS } from "./lib/constants/openai";
 import { getStorage } from "./lib/storage";
 
 const LS_STATE_KEY = "state";
@@ -21,6 +20,7 @@ const stateToLocalState = (state: RootState): LocalStorageState => {
       preamble: state.settings.preamble,
       shiftSend: state.settings.shiftSend,
       showPreamble: state.settings.showPreamble,
+      model: state.settings.model,
     },
   };
 };
@@ -41,10 +41,7 @@ const getInitalState = async (): Promise<RootState | undefined> => {
 
     let localState: LocalStorageState = {
       settings: {
-        maxTokens: CHATGPT_MAX_TOKENS,
-        preamble: "",
-        shiftSend: false,
-        showPreamble: false,
+        ...INITIAL_SETTINGS_STATE,
       },
     };
 

@@ -1,5 +1,9 @@
 import { createAsyncThunk, ThunkAction, AnyAction } from "@reduxjs/toolkit";
-import { streamChatCompletion, prepareHistory } from "@src/lib/api/openai";
+import {
+  streamChatCompletion,
+  prepareHistory,
+  ChatCompletionError,
+} from "@src/lib/api/openai";
 import { RootState } from "@src/store";
 import { ChatCompletionRequestMessage } from "openai";
 import { chatsSlice } from ".";
@@ -7,6 +11,7 @@ import { ASSISTANT, USER, Chat, NEW_CHAT_DEFAULT } from "./types";
 import { selectChat } from "./selectors";
 import { getApiConfiguration, selectApi } from "../settings/selectors";
 import { createToast } from "../toasts/thunks";
+import { CHATGPT_MODELS } from "@src/lib/constants/openai";
 
 export const streamCompletion = createAsyncThunk<
   void,
@@ -34,10 +39,12 @@ export const streamCompletion = createAsyncThunk<
     throw new Error("Chat not found");
   }
   try {
+    const tokenLimit = CHATGPT_MODELS[state.settings.model].tokens;
+
     const stream = streamChatCompletion(
       {
-        model: "gpt-3.5-turbo-0301",
-        messages: await prepareHistory(Object.values(chat.history)),
+        model: state.settings.model,
+        messages: await prepareHistory(Object.values(chat.history), tokenLimit),
         stream: true,
       },
       config,
@@ -65,9 +72,33 @@ export const streamCompletion = createAsyncThunk<
       );
     }
   } catch (e) {
+    if (e instanceof ChatCompletionError) {
+      if (e.response.status === 401 || e.response.status === 403) {
+        thunkAPI.dispatch(
+          createToast({
+            message: "Your API key is invalid. Please check your settings",
+            type: "error",
+            duration: 3000,
+          })
+        );
+        return;
+      }
+      if (e.response.status === 404) {
+        thunkAPI.dispatch(
+          createToast({
+            message:
+              "The model you selected does not exist. Please check your settings",
+            type: "error",
+            duration: 3000,
+          })
+        );
+        return;
+      }
+    }
+
     thunkAPI.dispatch(
       createToast({
-        message: "Something went wrong. maybe your API key is invalid?",
+        message: "Something went wrong while fetching the completion",
         type: "error",
         duration: 3000,
       })

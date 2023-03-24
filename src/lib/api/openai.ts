@@ -7,11 +7,20 @@ import {
   ChatCompletionRequestMessage,
 } from "openai";
 import { encode } from "./gpt-encoder";
-import { CHATGPT_MAX_TOKENS } from "../constants/openai";
 import { ChatMessage, SYSTEM } from "@src/features/chat/types";
 import { getStorage } from "../storage";
 
 export const API_KEY = await getStorage().getApiKey();
+
+export class ChatCompletionError extends Error {
+  response: Response;
+
+  constructor(message: string, response: Response) {
+    super(message);
+    this.name = "ChatCompletionError";
+    this.response = response;
+  }
+}
 
 export type ChatCompletionChunk = {
   id: string;
@@ -64,11 +73,11 @@ export async function* streamChatCompletion(
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch");
+    throw new ChatCompletionError("Failed to fetch", res);
   }
 
   if (!res.body) {
-    throw new Error("No body");
+    throw new ChatCompletionError("No body", res);
   }
 
   const reader = res.body.getReader();
@@ -137,29 +146,35 @@ export const chatMessageToChatCompletionRequestMessage = (
 };
 //TODO: handle the case if there are too many persisted messages
 //      right now the app will crash
-export const trunctateChat = (
-  messages: ChatMessage[],
-  limit: number = CHATGPT_MAX_TOKENS
-) => {
+export const trunctateChat = (messages: ChatMessage[], limit: number) => {
   const indexMapped = messages.map((message, i) => {
     return {
       ...message,
       index: i,
     };
   });
+  // remove as little messages as possible always include system messages
   const shouldPersist = (message: ChatMessage) =>
     message.role === SYSTEM || !!message.isImportant;
 
   const toPersistMessages = indexMapped.filter(shouldPersist);
-  // remove as little messages as possible always include system messages
 
-  const countTokens = (message: ChatCompletionRequestMessage) =>
-    encode(message.content).length;
+  // Reference: Deep dive counting tokens
+  // https://platform.openai.com/docs/guides/chat/introduction
+  const countTokens = (message: ChatCompletionRequestMessage) => {
+    let numTokens = 0;
+    numTokens += encode(message.content).length;
+    numTokens += encode(message.role).length;
+    numTokens += 4; // every message follows <im_start>{role/name}\n{content}<im_end>\n;
+
+    return numTokens;
+  };
 
   let totalTokens = toPersistMessages.reduce(
     (acc, message) => acc + countTokens(message),
     0
   );
+  totalTokens += 2; // every message follows <im_start>{role/name}\n{content}<im_end>\n
 
   const toIncludeMessages = indexMapped
     .filter((message) => !shouldPersist(message))
@@ -182,8 +197,8 @@ export const trunctateChat = (
     });
 };
 
-export const prepareHistory = (messages: ChatMessage[]) => {
-  const history = trunctateChat(messages).map(
+export const prepareHistory = (messages: ChatMessage[], tokenLimit: number) => {
+  const history = trunctateChat(messages, tokenLimit).map(
     chatMessageToChatCompletionRequestMessage
   );
 

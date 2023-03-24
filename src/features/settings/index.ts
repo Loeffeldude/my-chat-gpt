@@ -2,6 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { API_KEY } from "@src/lib/api/openai";
 import { SettingsState } from "./types";
 import { getStorage } from "@src/lib/storage";
+import { ChatGPTModel } from "@src/lib/constants/openai";
 
 const initialState: SettingsState = {
   preamble:
@@ -10,6 +11,7 @@ const initialState: SettingsState = {
   shiftSend: true,
   showPreamble: false,
   apiKey: API_KEY,
+  model: "gpt-3.5-turbo",
 };
 
 // Reducer
@@ -35,10 +37,20 @@ export const settingSlice = createSlice({
     setShowPreamble: (state, payload: PayloadAction<{ show: boolean }>) => {
       state.showPreamble = payload.payload.show;
     },
+    setModel: (state, payload: PayloadAction<{ model: ChatGPTModel }>) => {
+      state.model = payload.payload.model;
+    },
   },
 });
 // Actions
-export const { setPreamble, setApiKey, setShiftKey, setShowPreamble } =
-  settingSlice.actions;
+export const {
+  setPreamble,
+  setApiKey,
+  setShiftKey,
+  setShowPreamble,
+  setModel,
+} = settingSlice.actions;
 
 export const dialogueReducer = settingSlice.reducer;
+
+export const INITIAL_SETTINGS_STATE = initialState;
