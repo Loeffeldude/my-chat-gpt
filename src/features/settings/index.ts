@@ -8,7 +8,7 @@ const initialState: SettingsState = {
   preamble:
     "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.",
   maxTokens: 5,
-  shiftSend: true,
+  shiftSend: false,
   showPreamble: false,
   apiKey: API_KEY,
   model: "gpt-3.5-turbo",

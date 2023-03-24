@@ -1,7 +1,7 @@
 {
   "name": "my-chat-gpt",
   "private": true,
-  "version": "0.0.10",
+  "version": "0.1.0",
   "main": "dist-electron/main/index.js",
   "author": {
     "name": "Nico Krätschmer",
