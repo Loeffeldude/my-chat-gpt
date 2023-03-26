@@ -1,11 +1,11 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ChatSelection } from "./components/ChatSelection";
 import { useAppDispatch, useAppSelector } from "./lib/hooks/redux";
 import { useEffect, useState } from "react";
 import { FiSettings, FiX, FiMenu } from "react-icons/fi";
 import classNames from "classnames";
 import { IconButton } from "./components/IconButton";
-import { createChat } from "./features/chat";
+import { createChat, switchChat } from "./features/chat";
 
 function SideMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,22 +47,28 @@ function SideMenu() {
 
 function App() {
   const state = useAppSelector((state) => state);
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!state.chats.activeId) {
-      if (Object.keys(state.chats.chats).length === 0) {
+      const firstChat = Object.values(state.chats.chats)[0];
+
+      if (!firstChat) {
         dispatch(createChat({ preamble: state.settings.preamble }));
-        return;
+      } else {
+        dispatch(switchChat({ id: firstChat.id }));
       }
-      navigate(`/${Object.keys(state.chats.chats)[0]}`);
       return;
     }
 
-    navigate(`/${state.chats.activeId}`);
+    if (!location.pathname.includes(state.chats.activeId)) {
+      navigate(`/${state.chats.activeId}`);
+    }
   }, [
     dispatch,
+    location.pathname,
     navigate,
     state.chats.activeId,
     state.chats.chats,
