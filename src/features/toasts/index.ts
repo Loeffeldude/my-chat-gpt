@@ -22,6 +22,9 @@ export const toastSlice = createSlice({
     ) => {
       state.toasts[payload.payload.id]._showing = payload.payload.showing;
     },
+    removeToast: (state, payload: PayloadAction<{ id: string }>) => {
+      delete state.toasts[payload.payload.id];
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createToast.fulfilled, (state, payload) => {
@@ -29,7 +32,5 @@ export const toastSlice = createSlice({
     });
   },
 });
-// Actions
-export const {} = toastSlice.actions;
 
 export const toastReducer = toastSlice.reducer;
