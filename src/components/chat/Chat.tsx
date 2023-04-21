@@ -11,7 +11,7 @@ import {
   abortCompletion,
   setImportant,
 } from "@src/features/chat";
-import { pushHistory } from "@src/features/chat/thunks";
+import { pushHistory, streamCompletion } from "@src/features/chat/thunks";
 import { Chat } from "@src/features/chat/types";
 import { Button } from "../Button";
 
@@ -36,6 +36,16 @@ export function ChatView({ chat }: ChatViewProps) {
   );
   const showPreamble = useAppSelector((state) => state.settings.showPreamble);
 
+  const isHistoryEmpty =
+    Object.values(chat.history).filter((message) => !message.isPreamble)
+      .length === 0;
+
+  const isLastMessageBot = useMemo(() => {
+    const lastMessage = Object.values(chat.history).pop();
+    if (!lastMessage) return false;
+    return lastMessage.role === "assistant";
+  }, [chat.history]);
+
   const handleChatInput = useCallback<NonNullable<ChatInputProps["onChange"]>>(
     ({ draft, role }) => {
       if (!chat) return;
@@ -59,6 +69,22 @@ export function ChatView({ chat }: ChatViewProps) {
 
     dispatch(abortCompletion({ id: chat.id }));
   }, [chat, dispatch]);
+
+  const handleGenerateResponse = useCallback(() => {
+    if (!chat) return;
+
+    if (isLastMessageBot) {
+      // Remove the last message by the bot and generate a new one
+      const lastMessage = Object.values(chat.history).pop();
+      if (lastMessage) {
+        dispatch(deleteMessage({ chatId: chat.id, messageId: lastMessage.id }));
+      }
+      dispatch(streamCompletion(chat.id));
+      return;
+    }
+
+    dispatch(streamCompletion(chat.id));
+  }, [chat, dispatch, isLastMessageBot]);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
@@ -144,6 +170,13 @@ export function ChatView({ chat }: ChatViewProps) {
         {shouldRenderTmpMessage && (
           <div className="flex justify-center">
             <Button onClick={handleChatAbort}>Stop Generation</Button>
+          </div>
+        )}
+        {!botTyping && !isHistoryEmpty && (
+          <div className="flex justify-center">
+            <Button onClick={handleGenerateResponse}>
+              {isLastMessageBot ? "Regenerate Response" : "Generate Response"}
+            </Button>
           </div>
         )}
         <div className="sticky bottom-4 mt-auto w-full">
