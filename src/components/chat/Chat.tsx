@@ -157,7 +157,7 @@ export function ChatView({ chat }: ChatViewProps) {
 
   return (
     <div className="h-full overflow-y-scroll" ref={scrollRef}>
-      <div className="mx-auto flex min-h-full max-w-2xl flex-col px-4">
+      <div className="mx-auto flex min-h-full max-w-[66rem] flex-col px-4">
         <div className="py-5">
           {historyMessages}
           {shouldRenderTmpMessage && (
