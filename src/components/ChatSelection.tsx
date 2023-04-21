@@ -9,17 +9,58 @@ import { useAppDispatch, useAppSelector } from "@src/lib/hooks/redux";
 import classNames from "classnames";
 import { IconButton } from "./IconButton";
 import { FiCheck, FiEdit, FiTrash } from "react-icons/fi";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { localConfirm } from "@src/lib/util";
 
-type ChatSelectionButtonProps = {
+const SUMMARY_TYPING_SPEED = 50;
+interface ChatSummaryTextProps {
+  summary: string;
+}
+
+const ChatSummaryText = memo(({ summary }: ChatSummaryTextProps) => {
+  const [displaySummary, setDisplaySummary] = useState(summary);
+  const prevSummary = useRef(summary);
+  // Type the new summary into the text
+  useEffect(() => {
+    let interval: NodeJS.Timer | null = null;
+    if (prevSummary.current === summary) {
+      return;
+    }
+    prevSummary.current = summary;
+    setDisplaySummary("");
+    const typeText = () => {
+      setDisplaySummary((prev) => {
+        if (prev.length === summary.length) {
+          interval && clearInterval(interval);
+          return prev;
+        }
+        return summary.slice(0, prev.length + 1);
+      });
+    };
+
+    interval = setInterval(typeText, SUMMARY_TYPING_SPEED);
+
+    return () => {
+      interval && clearInterval(interval);
+    };
+  }, [summary]);
+
+  return (
+    <p className="block h-[24px] w-full max-w-[80%] overflow-hidden overflow-ellipsis">
+      <span className="block h-full">{displaySummary}</span>
+    </p>
+  );
+});
+ChatSummaryText.displayName = "ChatSummaryText";
+
+interface ChatSelectionButtonProps {
   id: string;
   active: boolean;
   summary: string;
   onClick?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string, summary: string) => void;
-};
+}
 
 export function ChatSelectionButton({
   active,
@@ -63,7 +104,8 @@ export function ChatSelectionButton({
   useEffect(() => {
     setEditedSummary(summary);
   }, [summary]);
-
+  // When the user clicks the edit button, focus the input
+  // And when the user presses enter, save the summary
   useEffect(() => {
     if (isEditing) {
       inputRef.current?.focus();
@@ -76,7 +118,10 @@ export function ChatSelectionButton({
     }
   }, [handleSave, isEditing]);
 
-  //TODO: refactor this to be more readable
+  const chatSummaryText = useMemo(() => {
+    return <ChatSummaryText summary={summary} />;
+  }, [summary]);
+
   return (
     <div className={classes}>
       {active ? (
@@ -90,11 +135,11 @@ export function ChatSelectionButton({
             }}
           />
         ) : (
-          <span className="block w-full">{summary}</span>
+          chatSummaryText
         )
       ) : (
         <button className="block w-full text-left" onClick={handleClick}>
-          {summary}
+          {chatSummaryText}
         </button>
       )}
       {active && (

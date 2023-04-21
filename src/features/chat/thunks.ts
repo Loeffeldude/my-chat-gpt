@@ -7,7 +7,7 @@ import {
 import { RootState } from "@src/store";
 import { ChatCompletionRequestMessage } from "openai";
 import { chatsSlice } from ".";
-import { ASSISTANT, USER, Chat, NEW_CHAT_DEFAULT } from "./types";
+import { ASSISTANT, USER, Chat, NEW_CHAT_DEFAULT, SYSTEM } from "./types";
 import { selectChat } from "./selectors";
 import { getApiConfiguration, selectApi } from "../settings/selectors";
 import { createToast } from "../toasts/thunks";
@@ -117,7 +117,6 @@ export const fetchSummary = createAsyncThunk<
   const api = selectApi(state);
 
   const chat = selectChat(id)(state);
-
   if (!chat) {
     throw new Error("Chat not found");
   }
@@ -130,18 +129,33 @@ export const fetchSummary = createAsyncThunk<
     return NEW_CHAT_DEFAULT;
   }
   try {
+    const tokenLimit = CHATGPT_MODELS[state.settings.model].tokens;
     const response = await api.createChatCompletion({
       messages: [
-        firstAssistantMessage,
+        ...prepareHistory(
+          Object.values(chat.history).filter((m) => m.role !== SYSTEM),
+          tokenLimit
+        ),
         {
           role: USER,
-          content: "Summurize this in as little words as possible",
+          content: `Respond with title for this conversation. Use as few words as possible. Your entire response will be used as the title. If you don't want to set a title, respond with: "${NEW_CHAT_DEFAULT}" `,
         },
       ],
       model: "gpt-3.5-turbo-0301",
     });
     const summary = response.data.choices[0];
-    return summary?.message?.content ?? NEW_CHAT_DEFAULT;
+
+    let newTitle = summary?.message?.content;
+
+    if (!newTitle) {
+      return NEW_CHAT_DEFAULT;
+    }
+
+    newTitle = newTitle.replace(/title: /i, "").trim();
+    // Replace " " if it is wrapped in quotes (e.g. "title") is the same as title
+    newTitle = newTitle.replace(/^"(.*)"$/, "$1");
+
+    return newTitle;
   } catch (e) {
     console.error(e);
     return NEW_CHAT_DEFAULT;
@@ -152,14 +166,14 @@ export const pushHistory =
   (
     message: ChatCompletionRequestMessage
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
-  (dispatch, getState) => {
-    const state = getState();
+  async (dispatch, getState) => {
+    let state = getState();
     const activeId = state.chats.activeId;
     if (activeId === null) {
       return;
     }
 
-    const chat = selectChat(activeId)(state);
+    let chat = selectChat(activeId)(state);
 
     if (!chat) {
       throw new Error("Chat not found");
@@ -173,6 +187,20 @@ export const pushHistory =
     );
 
     if (message.role === USER) {
-      dispatch(streamCompletion(chat.id));
+      await dispatch(streamCompletion(chat.id));
+      // We need to get the latest state here because the streamCompletion
+      state = getState();
+      chat = selectChat(activeId)(state);
+      if (!chat) {
+        return;
+      }
+
+      const isFirstAssistantMessage =
+        Object.values(chat.history).filter((h) => h.role === ASSISTANT)
+          .length === 1;
+
+      if (isFirstAssistantMessage) {
+        dispatch(fetchSummary(chat.id));
+      }
     }
   };
