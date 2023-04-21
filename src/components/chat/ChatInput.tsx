@@ -1,6 +1,6 @@
 import { capitilize } from "@src/lib/util";
 import { ChatCompletionResponseMessageRoleEnum } from "openai";
-import { useCallback, ChangeEvent, FormEvent, useMemo } from "react";
+import { useCallback, ChangeEvent, useState, FormEvent } from "react";
 import { IconButton } from "../IconButton";
 
 import { FiSend } from "react-icons/fi";
@@ -9,7 +9,6 @@ export type ChatInputValue = {
   role: ChatCompletionResponseMessageRoleEnum;
   draft: string;
 };
-
 export type ChatInputProps = {
   onChange?: (values: ChatInputValue) => void;
   onSubmit?: (values: ChatInputValue) => void;
@@ -25,7 +24,9 @@ export function ChatInput({
   onSubmit,
   disabled,
 }: ChatInputProps) {
-  const shiftSend = useAppSelector((state) => state.settings.shiftSend);
+  const sendWithShiftEnter = useAppSelector(
+    (state) => state.settings.shiftSend
+  );
   const roleOptions = ["user", "system", "assistant"];
 
   const handleDraftChange = useCallback(
@@ -57,23 +58,38 @@ export function ChatInput({
     [disabled, draft, onSubmit, sendAsRole]
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.shiftKey || !shiftSend)) {
-      e.preventDefault();
-      handleSubmit(e as any);
-    }
+  const handleResize = (event: FormEvent<HTMLTextAreaElement>) => {
+    const el = event.currentTarget;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
   };
 
-  //Grow text area
-  const textAreaRows = useMemo(() => {
-    const defaultHeight = 1;
-    const maxHeight = 5;
-    if (!draft) return defaultHeight;
-    return Math.min(
-      maxHeight,
-      Math.max(defaultHeight, draft.split("\n").length)
-    );
-  }, [draft]);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter") {
+      return;
+    }
+
+    if (e.shiftKey && !sendWithShiftEnter) {
+      e.preventDefault();
+      const textarea = e.target as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      const before = value.substring(0, start);
+      const after = value.substring(end, value.length);
+      const newValue = before + "\n" + after;
+      textarea.selectionStart = start + 1;
+      textarea.selectionEnd = start + 1;
+
+      onChange && onChange({ draft: newValue, role: sendAsRole });
+      handleResize(e as any);
+      return;
+    }
+
+    e.preventDefault();
+    handleSubmit(e as any);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="">
@@ -100,7 +116,14 @@ export function ChatInput({
           value={draft}
           onChange={handleDraftChange}
           onKeyDown={handleKeyDown}
-          rows={textAreaRows}
+          onInput={handleResize}
+          style={{
+            height: "auto",
+            minHeight: "1em",
+            maxHeight: "6em",
+            resize: "none",
+          }}
+          rows={1}
         ></textarea>
         <div className="">
           <IconButton
