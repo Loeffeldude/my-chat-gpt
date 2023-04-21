@@ -64,7 +64,7 @@ function App() {
     }
 
     if (!location.pathname.includes(state.chats.activeId)) {
-      navigate(`/${state.chats.activeId}`);
+      navigate(`/${state.chats.activeId}`, { replace: true });
     }
   }, [
     dispatch,
