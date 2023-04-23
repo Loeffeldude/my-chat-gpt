@@ -25,3 +25,5 @@ chats
 *.njsproj
 *.sln
 *.sw?
+
+.eslintcache
