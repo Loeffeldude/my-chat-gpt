@@ -92,8 +92,11 @@ export function ChatInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="">
-      <div>
+    <form
+      onSubmit={handleSubmit}
+      className="pointer-events-none mx-auto max-w-2xl"
+    >
+      <div className="pointer-events-auto">
         <select
           name="chat-role"
           id="chat-role"
@@ -108,11 +111,11 @@ export function ChatInput({
           ))}
         </select>
       </div>
-      <div className="flex w-full flex-row">
+      <div className="pointer-events-auto flex w-full flex-row ">
         <textarea
           name="chat-input"
           id="chat-input"
-          className="w-full resize-none rounded-md rounded-tl-none bg-mirage-700 p-1"
+          className="w-full resize-none rounded-md rounded-tl-none bg-mirage-700 p-1 shadow-sm"
           value={draft}
           onChange={handleDraftChange}
           onKeyDown={handleKeyDown}
@@ -129,7 +132,7 @@ export function ChatInput({
           <IconButton
             disabled={disabled}
             aria-label="Send Message"
-            className="ml-2 !bg-green-700 hover:!bg-green-600 active:!bg-green-800"
+            className="ml-2 !bg-green-700 shadow-sm hover:!bg-green-600 active:!bg-green-800"
           >
             {disabled ? (
               <div className="flex flex-row items-center">
