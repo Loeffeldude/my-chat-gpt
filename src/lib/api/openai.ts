@@ -179,6 +179,9 @@ export const trunctateChat = (messages: ChatMessage[], limit: number) => {
   // https://platform.openai.com/docs/guides/chat/introduction
   const countTokens = (message: ChatCompletionRequestMessage) => {
     let numTokens = 0;
+    if (!message.content) {
+      return numTokens;
+    }
     numTokens += encode(message.content).length;
     numTokens += encode(message.role).length;
     numTokens += 4; // every message follows <im_start>{role/name}\n{content}<im_end>\n;
