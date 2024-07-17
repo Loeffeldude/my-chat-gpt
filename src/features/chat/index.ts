@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ChatCompletionRequestMessage } from "openai";
 import { v4 as uuid } from "uuid";
 import { PartialChatCompletionChunk } from "@src/lib/api/openai";
-import { Chat, ChatState, NEW_CHAT_DEFAULT, SYSTEM } from "./types";
+import { Chat, ChatState, FUNCTION, NEW_CHAT_DEFAULT, SYSTEM } from "./types";
 import { fetchSummary, streamCompletion } from "./thunks";
 import { getStorage } from "@src/lib/storage";
 
@@ -76,9 +76,15 @@ export const chatsSlice = createSlice({
       }>
     ) => {
       const { chatId, segment } = payload.payload;
+
+      if (segment.role === FUNCTION || !segment.content) {
+        return;
+      }
+
       const messageId = uuid();
       state.chats[chatId].history[messageId] = {
-        ...segment,
+        content: segment.content,
+        role: segment.role,
         id: messageId,
         isPreamble: false,
       };
@@ -180,6 +186,8 @@ export const chatsSlice = createSlice({
     builder.addCase(streamCompletion.rejected, (state, action) => {
       const id = action.meta.arg;
       state.chats[id].botTyping = false;
+
+      console.error(action.error);
 
       state.chats[id].botTypingMessage = {
         content: undefined,

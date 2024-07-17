@@ -3,8 +3,8 @@ import { z } from "zod";
 export const SYSTEM = "system";
 export const USER = "user";
 export const ASSISTANT = "assistant";
-
-export const roleShema = z.enum([SYSTEM, USER, ASSISTANT]);
+export const FUNCTION = "function";
+export const roleShema = z.enum([SYSTEM, USER, ASSISTANT, FUNCTION]);
 // Create zod schema for ChatMessage
 export const chatMessageSchema = z.object({
   id: z.string(),

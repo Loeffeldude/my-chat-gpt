@@ -11,6 +11,12 @@ import { ChatMessage, SYSTEM } from "@src/features/chat/types";
 import { getStorage } from "../storage";
 
 export const API_KEY = await getStorage().getApiKey();
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const chunkArray = <T>(array: T[], size: number): T[][] => {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
+};
 
 export class ChatCompletionError extends Error {
   response: Response;
@@ -103,7 +109,7 @@ export async function* streamChatCompletion(
     buffer += new TextDecoder().decode(value);
     const lines = buffer.split("\n");
 
-    for (const line of lines) {
+    for (const line of lines.slice(0, -1)) {
       const message = line.replace(/^data: /, "");
       if (!message) {
         continue;
@@ -112,7 +118,7 @@ export async function* streamChatCompletion(
       if (message === "[DONE]") {
         return;
       }
-
+      console.log(message);
       const chunk = JSON.parse(message) as ChatCompletionChunk;
       const chunkChoice = chunk.choices[0];
 
@@ -122,13 +128,23 @@ export async function* streamChatCompletion(
           role: chunkChoice.delta.role,
         };
       }
+      const newContent = chunkChoice.delta.content;
 
-      if (chunkChoice.delta.content) {
-        resultMessage = {
-          ...resultMessage,
-          content: (resultMessage.content ?? "") + chunkChoice.delta.content,
-        };
+      if (newContent) {
+        // we print 5 words at a time
+        for (const contentChunk of chunkArray(newContent.split(" "), 40)) {
+          const content = contentChunk.join(" ");
+          resultMessage = {
+            ...resultMessage,
+            content: (resultMessage.content ?? "") + content,
+          };
+          // just for nicer typing flow:
+          await sleep(10);
+
+          yield resultMessage;
+        }
       }
+
       yield resultMessage;
     }
 

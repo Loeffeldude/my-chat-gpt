@@ -39,12 +39,14 @@ export const streamCompletion = createAsyncThunk<
     throw new Error("Chat not found");
   }
   try {
-    const tokenLimit = CHATGPT_MODELS[state.settings.model].tokens;
+    const tokenLimit = CHATGPT_MODELS[state.settings.model].tokens ?? 4000;
+
+    const history = prepareHistory(Object.values(chat.history), tokenLimit);
 
     const stream = streamChatCompletion(
       {
         model: state.settings.model,
-        messages: await prepareHistory(Object.values(chat.history), tokenLimit),
+        messages: history,
         stream: true,
       },
       config,
