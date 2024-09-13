@@ -5,6 +5,7 @@ export const CHATGPT_MODELS = Object.freeze({
   "gpt-4": { label: "GPT-4", tokens: 8192 },
   "gpt-4-32k": { label: "GPT-4 32k", tokens: 32768 },
   "gpt-4o": { label: "GPT-4o", tokens: 128000 },
+  "gpt-4o-mini": { label: "GPT-4o mini", tokens: 128000 },
 });
 
 export type ChatGPTModel = keyof typeof CHATGPT_MODELS;

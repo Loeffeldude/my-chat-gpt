@@ -11,7 +11,7 @@ const initialState: SettingsState = {
   shiftSend: false,
   showPreamble: false,
   apiKey: API_KEY,
-  model: "gpt-3.5-turbo",
+  model: "gpt-4o-mini",
 };
 
 // Reducer
